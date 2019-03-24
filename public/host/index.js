@@ -17,8 +17,11 @@ pingClientsButton.onclick = () => conn.send("test");
  */
 function initialize() {
     // Create own peer object with connection to shared PeerJS server
-    peer = new Peer(null, {
-        debug: 2
+    peer = new Peer('', {
+        host: location.hostname,
+        port: location.port || (location.protocol === 'https:' ? 443 : 80),
+        path: '/peerjs',
+        debug: 3
     });
 
     peer.on('open', function (id) {
