@@ -1,0 +1,69 @@
+console.log("Host source hit");
+
+initialize();
+
+var lastPeerId = 0;
+var peer;
+var conn;
+
+var pingClientsButton = document.getElementById("pingClients");
+pingClientsButton.onclick = () => conn.send("test");
+
+/**
+ * Create the Peer object for our end of the connection.
+ *
+ * Sets up callbacks that handle any events related to our
+ * peer object.
+ */
+function initialize() {
+    // Create own peer object with connection to shared PeerJS server
+    peer = new Peer(null, {
+        debug: 2
+    });
+
+    peer.on('open', function (id) {
+        // Workaround for peer.reconnect deleting previous id
+        if (peer.id === null) {
+            console.log('Received null id from peer open');
+            peer.id = lastPeerId;
+        } else {
+            lastPeerId = peer.id;
+        }
+
+        console.log('ID: ' + peer.id);
+        console.log("Awaiting connection");
+    });
+    peer.on('connection', function (c) {
+        // Allow only a single connection
+        if (conn) {
+            c.on('open', function() {
+                c.send("Already connected to another client");
+                setTimeout(function() { c.close(); }, 500);
+            });
+            return;
+        }
+
+        conn = c;
+        console.log("Connected to: " + conn.peer);
+
+        conn.on('data', function (data) {
+            console.log(data);
+        });
+    });
+    peer.on('disconnected', function () {
+        console.log('Connection lost. Please reconnect');
+
+        // Workaround for peer.reconnect deleting previous id
+        peer.id = lastPeerId;
+        peer._lastServerId = lastPeerId;
+        peer.reconnect();
+    });
+    peer.on('close', function() {
+        conn = null;
+        console.log('Connection destroyed');
+    });
+    peer.on('error', function (err) {
+        console.log(err);
+        alert('' + err);
+    });
+};
