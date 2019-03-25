@@ -5,9 +5,17 @@ initialize();
 var lastPeerId = 0;
 var peer;
 var conn;
+var connections = [];
 
 var pingClientsButton = document.getElementById("pingClients");
-pingClientsButton.onclick = () => conn.send("test");
+pingClientsButton.onclick = () => pingClients();
+
+
+function pingClients() {
+    connections.forEach(
+        connection => connection.send("test to: " + connection.peer)
+    )
+}
 
 /**
  * Create the Peer object for our end of the connection.
@@ -37,21 +45,14 @@ function initialize() {
         console.log("Awaiting connection");
     });
     peer.on('connection', function (c) {
-        // Allow only a single connection
-        if (conn) {
-            c.on('open', function() {
-                c.send("Already connected to another client");
-                setTimeout(function() { c.close(); }, 500);
-            });
-            return;
-        }
-
         conn = c;
         console.log("Connected to: " + conn.peer);
 
         conn.on('data', function (data) {
             console.log(data);
         });
+
+        connections.push(conn);
     });
     peer.on('disconnected', function () {
         console.log('Connection lost. Please reconnect');
