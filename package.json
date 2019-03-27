@@ -11,5 +11,8 @@
   "dependencies": {
     "express": "^4.16.4",
     "peer": "^0.2.10"
+  },
+  "devDependencies": {
+    "webpack-cli": "^3.3.0"
   }
 }

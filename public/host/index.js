@@ -1,3 +1,5 @@
+require('../libs/peer.js');
+
 console.log("Host source hit");
 
 initialize();
