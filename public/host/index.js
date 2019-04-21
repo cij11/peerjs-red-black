@@ -1,5 +1,5 @@
 require('../libs/peer.js');
-var importTest = require("./import-test.js");
+var importTest = require("./game-host.js");
 
 console.log("Host source hit");
 importTest();
