@@ -4,6 +4,7 @@ var GameHost = require("./game-host.js");
 console.log("Host source hit");
 let gameHost = new GameHost();
 gameHost.logPlayers();
+let requiredNumPlayers = 2;
 
 initialize();
 
@@ -63,6 +64,13 @@ function initialize() {
         connections.push(conn);
         let connectedClientCount = document.getElementById("connectedClientCount");
         connectedClientCount.innerText = connections.length;
+
+        gameHost.addPlayer(conn.peer);
+        gameHost.logPlayers();
+
+        if (gameHost.players.length == requiredNumPlayers) {
+            gameHost.startGame();
+        }
     });
     peer.on('disconnected', function () {
         console.log('Connection lost. Please reconnect');
