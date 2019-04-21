@@ -1,8 +1,9 @@
 require('../libs/peer.js');
-var importTest = require("./game-host.js");
+var GameHost = require("./game-host.js");
 
 console.log("Host source hit");
-importTest();
+let gameHost = new GameHost();
+gameHost.logPlayers();
 
 initialize();
 

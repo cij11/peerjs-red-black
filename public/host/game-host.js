@@ -1,3 +1,13 @@
-const testFunction = () => console.log("Import test hit");
+const GameHost = function () {
+    this.players = [];
+    
+    this.addPlayer = function(player) {
+        this.players.push(player);
+    }
 
-module.exports = testFunction;
+    this.logPlayers = function() {
+        console.log(this.players);
+    }
+}
+
+module.exports = GameHost;
