@@ -1,6 +1,8 @@
 require('../libs/peer.js');
+var importTest = require("./import-test.js");
 
 console.log("Host source hit");
+importTest();
 
 initialize();
 
@@ -18,6 +20,7 @@ function pingClients() {
         connection => connection.send("test to: " + connection.peer)
     )
 }
+
 
 /**
  * Create the Peer object for our end of the connection.
@@ -43,6 +46,8 @@ function initialize() {
             lastPeerId = peer.id;
         }
 
+        var peerIdOutput = document.getElementById("peerIdOutput");
+        peerIdOutput.innerText = peer.id;
         console.log('ID: ' + peer.id);
         console.log("Awaiting connection");
     });
@@ -55,6 +60,8 @@ function initialize() {
         });
 
         connections.push(conn);
+        let connectedClientCount = document.getElementById("connectedClientCount");
+        connectedClientCount.innerText = connections.length;
     });
     peer.on('disconnected', function () {
         console.log('Connection lost. Please reconnect');

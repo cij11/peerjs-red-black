@@ -1,4 +1,6 @@
-console.log("Client source hit");
+require('../libs/peer.js');
+
+console.log("Client source hit.");
 
 var lastPeerId = 0;
 var peer;
