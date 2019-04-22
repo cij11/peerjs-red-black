@@ -10,6 +10,10 @@ var recvIdInput = {
     value: "mnr6qkd369f00000"
 };
 
+let gameInfo = {
+    gameState: 'NOT_CONNECTED'
+}
+
 var sendTestMessageButton = document.getElementById("testButton");
 sendTestMessageButton.onclick = () => conn.send("test");
 
@@ -80,12 +84,30 @@ function join() {
         console.log("Connected to: " + conn.peer);
 
         conn.send("test");
+        gameInfo.gameState = "AWAITING_PLAYERS";
+        updateGameState();
     });
     // Handle incoming data (messages only since this is the signal sender)
     conn.on('data', function (data) {
         console.log(data);
+        receiveMessageFromHost(data);
     });
     conn.on('close', function () {
         console.log("Connection closed");
     });
 };
+
+function receiveMessageFromHost(data) {
+    switch(data.action) {
+        case 'SET_GAME_STATE':
+            gameInfo.gameState = data.payload;
+            updateGameState();
+            console.log("Game state set to " + data.payload);
+            break;
+    }
+}
+
+function updateGameState() {
+    let gameStateDisplay = document.getElementById("gameState");
+    gameStateDisplay.innerText = gameInfo.gameState;
+}
