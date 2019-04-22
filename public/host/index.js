@@ -96,7 +96,7 @@ function recieveInputFromPlayer(data) {
     const actionMode = data.actionMode;
     const actionType = data.actionType;
     console.log("Input from: " + this.peer); // this is the DataConnection 'conn', when recieveInputFromPlayer is passed as a callback function, so we have the peer property.
-    
+
     // Give input to gameHost
     gameHost.recieveInputFromPlayer(this.peer, data);
 
@@ -112,7 +112,7 @@ function recieveInputFromPlayer(data) {
     } else {
         console.log("Ping recieved from inactive player: " + this.peer);
     }
-    
+
     console.log(data, "DATA");
 }
 
