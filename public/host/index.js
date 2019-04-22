@@ -72,6 +72,8 @@ function initialize() {
             gameHost.setActivePlayer(gameHost.getRandomPlayer());
 
             setTimeout(() => sendToAllPlayers({action: 'SET_GAME_STATE', payload: 'ALL_PLAYERS_JOINED'}), 500);
+            setTimeout(() => sendToAllPlayers({action: 'SET_ACTIVE_PLAYER', payload: gameHost.getActivePlayer()}), 500);
+
         }
     });
     peer.on('disconnected', function () {

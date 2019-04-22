@@ -11,7 +11,18 @@ var recvIdInput = {
 };
 
 let gameInfo = {
-    gameState: 'NOT_CONNECTED'
+    gameState: 'NOT_CONNECTED',
+    activePlayer: 'ALL'
+}
+
+let roundInfo = new RoundInfo();
+
+function RoundInfo() {
+    this.totalRedCards = 3;
+    this.totalBlackCards = 1;
+    this.handRedCards = 3;
+    this.handBlackCards = 1;
+    this.stack = [];
 }
 
 var sendTestMessageButton = document.getElementById("testButton");
@@ -104,10 +115,30 @@ function receiveMessageFromHost(data) {
             updateGameState();
             console.log("Game state set to " + data.payload);
             break;
+        case 'SET_ROUND_INFO':
+            roundInfo = data.payload;
+            updateRoundInfo();
     }
 }
 
 function updateGameState() {
     let gameStateDisplay = document.getElementById("gameState");
     gameStateDisplay.innerText = gameInfo.gameState;
+
+    let activePlayer = document.getElementById("activePlayer");
+    if (gameInfo.activePlayer === "ALL") {
+        activePlayer.innerText = "All players active";
+    } else if (gameInfo.activePlayer === peer.id) {
+        activePlayer.innerText = "You are the active player: " + peer.id;
+    } else {
+        activePlayer.innerText = "Waiting for active player: " + peer.id;
+    }
+}
+
+function updateRoundInfo() {
+    let handRedCards = document.getElementById("handRedCards");
+    handRedCards.innerText = roundInfo.handRedCards;
+
+    let handBlackCards = document.getElementById("handBlackCards");
+    handBlackCards.innerText = roundInfo.handBlackCards;
 }
