@@ -1,4 +1,6 @@
 require('../libs/peer.js');
+const CONSTANTS = require("../libs/constants.js");
+const Infos = require("../libs/infos.js");
 
 console.log("Client source hit.");
 
@@ -10,20 +12,10 @@ var recvIdInput = {
     value: "mnr6qkd369f00000"
 };
 
-let gameInfo = {
-    gameState: 'NOT_CONNECTED',
-    activePlayer: 'ALL'
-}
-
-let roundInfo = new RoundInfo();
-
-function RoundInfo() {
-    this.totalRedCards = 3;
-    this.totalBlackCards = 1;
-    this.handRedCards = 3;
-    this.handBlackCards = 1;
-    this.stack = [];
-}
+let globalMatchInfo = Infos.GlobalMatchInfo();
+let globalRoundInfo = Infos.GlobalRoundInfo();
+let playerMatchInfo = Infos.PlayerMatchInfo();
+let playerRoundInfo = Infos.PlayerRoundInfo();
 
 var sendTestMessageButton = document.getElementById("testButton");
 sendTestMessageButton.onclick = () => conn.send("test");
@@ -95,50 +87,65 @@ function join() {
         console.log("Connected to: " + conn.peer);
 
         conn.send("test");
-        gameInfo.gameState = "AWAITING_PLAYERS";
-        updateGameState();
+        globalMatchInfo.matchState = "AWAITING_PLAYERS";
+        updateGlobalMatchInfo();
     });
     // Handle incoming data (messages only since this is the signal sender)
     conn.on('data', function (data) {
         console.log(data);
-        receiveMessageFromHost(data);
+        recieveData(data);
     });
     conn.on('close', function () {
         console.log("Connection closed");
     });
 };
 
-function receiveMessageFromHost(data) {
+function recieveData(data) {
     switch(data.action) {
-        case 'SET_GAME_STATE':
-            gameInfo.gameState = data.payload;
-            updateGameState();
-            console.log("Game state set to " + data.payload);
+        case CONSTANTS.SET_GLOBAL_MATCH_INFO:
+            globalMatchInfo = data.payload;
+            updateGlobalMatchInfo();
+            console.log(data.payload, "Setting globalMatchInfo");
             break;
-        case 'SET_ROUND_INFO':
-            roundInfo = data.payload;
-            updateRoundInfo();
+        case CONSTANTS.SET_GLOBAL_ROUND_INFO:
+            globalRoundInfo = data.payload;
+            updateGlobalRoundInfo();
+            console.log(data.payload, "Setting globalRoundInfo");
+            break;
+        case CONSTANTS.SET_PLAYER_MATCH_INFO:
+            playerMatchInfo = data.payload;
+            updatePlayerMatchInfo();
+        case CONSTANTS.SET_PLAYER_ROUND_INFO:
+            playerRoundInfo = data.payload;
+            updatePlayerRoundInfo();
     }
 }
 
-function updateGameState() {
+function updateGlobalMatchInfo() {
     let gameStateDisplay = document.getElementById("gameState");
-    gameStateDisplay.innerText = gameInfo.gameState;
+    gameStateDisplay.innerText = globalMatchInfo.matchState;
+}
 
+function updateGlobalRoundInfo() {
     let activePlayer = document.getElementById("activePlayer");
-    if (gameInfo.activePlayer === "ALL") {
+    if (globalMatchInfo.activePlayer === "ALL") {
         activePlayer.innerText = "All players active";
-    } else if (gameInfo.activePlayer === peer.id) {
+    } else if (globalMatchInfo.activePlayer === peer.id) {
         activePlayer.innerText = "You are the active player: " + peer.id;
     } else {
         activePlayer.innerText = "Waiting for active player: " + peer.id;
     }
 }
 
-function updateRoundInfo() {
+function updatePlayerMatchInfo() {
+    let wins = document.getElementById("wins");
+    wins = playerMatchInfo.wins;
+}
+
+function updatePlayerRoundInfo() {
     let handRedCards = document.getElementById("handRedCards");
-    handRedCards.innerText = roundInfo.handRedCards;
+    handRedCards.innerText = playerRoundInfo.handRedCards;
 
     let handBlackCards = document.getElementById("handBlackCards");
-    handBlackCards.innerText = roundInfo.handBlackCards;
+    handBlackCards.innerText = playerRoundInfo.handBlackCards;
 }

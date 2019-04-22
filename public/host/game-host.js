@@ -1,17 +1,15 @@
-const AWAITING_PLAYERS = "AWAITING_PLAYERS";
-const GAME_IN_PROGRESS = "GAME_IN_PROGRESS";
+const CONSTANTS = require('../libs/constants.js');
+const Infos = require('../libs/infos.js');
 
 class GameHost {
     constructor() {
         this.playerPeers = [];
 
-        this.activePlayerPeers = []; // Player(s) who can submit moves
+        this.globalMatchInfo = Infos.GlobalMatchInfo();
+        this.globalRoundInfo = Infos.GlobalRoundInfo();
 
-        this.playersGameInfo = {};
-        this.playersRoundInfo = {};
-    
-        this.hostGameInfo = {};
-        this.hostRoundInfo = {};
+        this.playerMatchInfos = new Map();
+        this.playerRoundInfos = new Map();
     }
 
     
@@ -24,40 +22,37 @@ class GameHost {
         console.log(this.playerPeers);
     }
 
-    buildPlayerGameInfo() {
-        let playersInfo = {};
-
+    buildDefaultPlayerMatchInfos() {
         this.playerPeers.forEach(player => {
-            let playerInfo = {
-                reds: 3,
-                blacks: 1,
-                wins: 0
-            };
-            playersInfo[player] = playerInfo;
+            this.playerMatchInfos.set(player, Infos.PlayerMatchInfo());
         });
+    }
 
-        console.log("Players Info: ")
-        console.log(playersInfo);
-        return playersInfo;
+    buildDefaultPlayerRoundInfos() {
+        this.playerPeers.forEach(player => {
+            this.playerRoundInfos.set(player, Infos.PlayerRoundInfo());
+        });
     }
 
     startGame() {
         console.log("Required number of players present. Starting game");
 
-        this.playerGameInfo = this.buildPlayerGameInfo();
+        this.globalMatchInfo.matchState = CONSTANTS.MATCH_STATE_ALL_CONNECTED;
+
+        this.buildDefaultPlayerMatchInfos();
+        this.buildDefaultPlayerRoundInfos();
     }
 
     setActivePlayer(activePlayerPeer) {
-        this.activePlayerPeers = [];
-        this.activePlayerPeers.push(activePlayerPeer);
+        this.globalRoundInfo.activePlayer = activePlayerPeer;
     }
 
     setAllPlayersActive() {
-        this.activePlayerPeers = this.playerPeers;
+        this.globalRoundInfo.activePlayer = CONSTANTS.ALL_ACTIVE;
     }
 
-    checkPlayerIsActive(player) {
-        return this.activePlayerPeers.includes(player);
+    checkPlayerIsActive(playerPeer) {
+        return (this.globalRoundInfo.activePlayer === CONSTANTS.ALL_ACTIVE || this.globalMatchInfo.activePlayer === playerPeer);
     }
 
     getRandomPlayer() {

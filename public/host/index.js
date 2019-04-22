@@ -1,5 +1,6 @@
 require('../libs/peer.js');
 var GameHost = require("./game-host.js");
+const CONSTANTS = require("../libs/constants.js");
 
 console.log("Host source hit");
 let gameHost = new GameHost();
@@ -71,8 +72,8 @@ function initialize() {
             gameHost.startGame();
             gameHost.setActivePlayer(gameHost.getRandomPlayer());
 
-            setTimeout(() => sendToAllPlayers({action: 'SET_GAME_STATE', payload: 'ALL_PLAYERS_JOINED'}), 500);
-            setTimeout(() => sendToAllPlayers({action: 'SET_ACTIVE_PLAYER', payload: gameHost.getActivePlayer()}), 500);
+            setTimeout(() => sendToAllPlayers({action: CONSTANTS.SET_GLOBAL_MATCH_INFO, payload: gameHost.globalMatchInfo}), 500);
+            setTimeout(() => sendToAllPlayers({action: CONSTANTS.SET_GLOBAL_ROUND_INFO, payload: gameHost.globalRoundInfo}), 1000);
 
         }
     });
@@ -95,8 +96,8 @@ function initialize() {
 };
 
 function recieveInputFromPlayer(data) {
-    const actionMode = data.actionMode;
-    const actionType = data.actionType;
+    const action = data.action;
+ 
     console.log("Input from: " + this.peer); // this is the DataConnection 'conn', when recieveInputFromPlayer is passed as a callback function, so we have the peer property.
 
     // Give input to gameHost
@@ -116,6 +117,17 @@ function recieveInputFromPlayer(data) {
     }
 
     console.log(data, "DATA");
+
+    // switch(action) {
+    //     case 'PLAY_CARD':
+    //     if () {
+
+    //     } else if () {
+
+    //     } else {
+
+    //     }
+    // }
 }
 
 function sendOutputs(outputs) {
