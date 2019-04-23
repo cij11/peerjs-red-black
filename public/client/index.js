@@ -147,7 +147,7 @@ function updateGlobalMatchInfo() {
 
 function updateGlobalRoundInfo() {
     let activePlayer = document.getElementById("activePlayer");
-    if (globalRoundInfo.activePlayer === "ALL") {
+    if (globalRoundInfo.activePlayer === CONSTANTS.ALL_ACTIVE) {
         activePlayer.innerText = "All players active";
     } else if (globalRoundInfo.activePlayer === playerMatchInfo.peerId) {
         activePlayer.innerText = "You are the active player: " + playerMatchInfo.peerId;
