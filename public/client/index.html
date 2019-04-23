@@ -11,8 +11,9 @@
 
     <button type="button" id="testButton">Send Message</button>
 
-    <h2>Game state</h2>
-    <div id="gameState">NOT_CONNECTED</div>
+    <div>
+        <span>Game state:</span><div id="gameState">NOT_CONNECTED</div>
+    </div>
     <div>-----------------------------</div>
     <div>
         <span>Round state:</span><span id="roundState">PRE_GAME</span>
@@ -35,9 +36,15 @@
         </div>
         <div>-----------------------------</div>
         <div>
-            <div>Played cards</div>
+            <div>Your Played cards</div>
             <ol id="stackList">
     
+            </ol>
+        </div>
+        <div>
+            <div>Other Players Cards</div>
+            <ol id="otherPlayersCards">
+
             </ol>
         </div>
         <div>-----------------------------</div>

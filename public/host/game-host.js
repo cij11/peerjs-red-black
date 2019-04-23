@@ -39,12 +39,25 @@ class GameHost {
     }
 
     getPayloadForPeer(peerId) {
+        this.globalRoundInfo.stackSizeByPlayer = this.buildStackSizeByPlayer();
         return {
             globalMatchInfo: this.globalMatchInfo,
             globalRoundInfo: this.globalRoundInfo,
             playerMatchInfo: this.playerMatchInfos.get(peerId),
             playerRoundInfo: this.playerRoundInfos.get(peerId)
         }
+    }
+
+    buildStackSizeByPlayer() {
+        let stackSizeByPlayer = {};
+
+        this.playerPeers.forEach(
+            player => {
+                stackSizeByPlayer[player] = this.playerRoundInfos.get(player).stack.length;
+            }
+        )
+
+        return stackSizeByPlayer;
     }
 
     startGame() {
@@ -92,6 +105,30 @@ class GameHost {
             return true;
         }
 
+        // For all other round states, only the active player can move
+        if (this.globalRoundInfo.activePlayer !== peerId) {
+            return false;
+        }
+
+        if(this.globalRoundInfo.roundState === CONSTANTS.ROUND_STATE_PLACING) {
+            let playRed = data.action === CONSTANTS.PLAY_RED_CARD;
+            let playBlack = data.action === CONSTANTS.PLAY_BLACK_CARD;
+
+            if (playRed && !this.checkHandRedValid(peerId)) {
+                return false;
+            }
+
+            if (playBlack && !this.checkHandBlackValid(peerId)) {
+                return false;
+            }
+
+            if (playRed) this.playRed(peerId);
+            if (playBlack) this.playBlack(peerId);
+
+            this.advanceActivePlayer();
+            return true;
+        }
+
         return false;
     }
 
@@ -103,6 +140,16 @@ class GameHost {
     checkTotalBlackValid(peerId) {
         const playerMatchInfo = this.playerMatchInfos.get(peerId);
         return playerMatchInfo.totalBlackCards > 0;
+    }
+
+    checkHandRedValid(peerId) {
+        const playerRoundInfo = this.playerRoundInfos.get(peerId);
+        return playerRoundInfo.handRedCards > 0;
+    }
+
+    checkHandBlackValid(peerId) {
+        const playerRoundInfo = this.playerRoundInfos.get(peerId);
+        return playerRoundInfo.handBlackCards > 0;
     }
 
     playFirstRed(peerId) {
@@ -125,6 +172,20 @@ class GameHost {
         playerRoundInfo.handRedCards = playerMatchInfo.totalRedCards;
     }
 
+    playRed(peerId) {
+        const playerRoundInfo = this.playerRoundInfos.get(peerId);
+
+        playerRoundInfo.stack.push('red');
+        playerRoundInfo.handRedCards = playerRoundInfo.handRedCards - 1;
+    }
+
+    playBlack(peerId) {
+        const playerRoundInfo = this.playerRoundInfos.get(peerId);
+
+        playerRoundInfo.stack.push('black');
+        playerRoundInfo.handBlackCards = playerRoundInfo.handBlackCards - 1;
+    }
+
     setActivePlayer(activePlayerPeer) {
         this.globalRoundInfo.activePlayer = activePlayerPeer;
     }
@@ -133,8 +194,16 @@ class GameHost {
         this.globalRoundInfo.activePlayer = CONSTANTS.ALL_ACTIVE;
     }
 
+    advanceActivePlayer() {
+        let activeIndex = this.playerPeers.indexOf(this.globalRoundInfo.activePlayer);
+        activeIndex++;
+        if (activeIndex === this.playerPeers.length) activeIndex = 0;
+
+        this.globalRoundInfo.activePlayer = this.playerPeers[activeIndex];
+    }
+
     checkPlayerIsActive(playerPeer) {
-        return (this.globalRoundInfo.activePlayer === CONSTANTS.ALL_ACTIVE || this.globalMatchInfo.activePlayer === playerPeer);
+        return (this.globalRoundInfo.activePlayer === CONSTANTS.ALL_ACTIVE || this.globalRoundInfo.activePlayer === playerPeer);
     }
 
     getRandomPlayer() {
@@ -142,14 +211,6 @@ class GameHost {
         return this.playerPeers[index];
     }
 
-    getPlayerGameInfoByPeer(peer) {
-        if (this.playerGameInfo.hasOwnProperty(peer)) {
-            return this.playerGameInfo[peer];
-        } else {
-            throw("Peer not in playerGameInfo");
-        }
-        
-    }
 }
 
 module.exports = GameHost;

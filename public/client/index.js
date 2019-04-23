@@ -180,6 +180,8 @@ function updateGlobalRoundInfo() {
 
     let roundState = document.getElementById("roundState");
     roundState.innerText = globalRoundInfo.roundState
+
+    drawOtherPlayersCards();
 }
 
 function updatePlayerMatchInfo() {
@@ -214,5 +216,20 @@ function drawStack() {
             stackList.appendChild(cardItem);
         }
     )
+}
+
+function drawOtherPlayersCards() {
+    let otherPlayersCards = document.getElementById("otherPlayersCards");
+
+    while (otherPlayersCards.firstChild) {
+        otherPlayersCards.removeChild(otherPlayersCards.firstChild);
+    }
+
+    Object.keys(globalRoundInfo.stackSizeByPlayer).forEach(function(key) {
+        let otherPlayerCardsItem = document.createElement('li');
+        let text = "Player: " + key + " card count: " + globalRoundInfo.stackSizeByPlayer[key];
+        otherPlayerCardsItem.appendChild(document.createTextNode(text));
+        otherPlayersCards.appendChild(otherPlayerCardsItem);
+      })
 }
 
