@@ -17,6 +17,8 @@ let globalRoundInfo = Infos.GlobalRoundInfo();
 let playerMatchInfo = Infos.PlayerMatchInfo();
 let playerRoundInfo = Infos.PlayerRoundInfo();
 
+updateAllInfo();
+
 var sendTestMessageButton = document.getElementById("testButton");
 sendTestMessageButton.onclick = () => conn.send("test");
 
@@ -115,10 +117,27 @@ function recieveData(data) {
         case CONSTANTS.SET_PLAYER_MATCH_INFO:
             playerMatchInfo = data.payload;
             updatePlayerMatchInfo();
+            break;
         case CONSTANTS.SET_PLAYER_ROUND_INFO:
             playerRoundInfo = data.payload;
             updatePlayerRoundInfo();
+            break;
+        case CONSTANTS.SET_ALL_INFO:
+            globalMatchInfo = data.payload.globalMatchInfo;
+            globalRoundInfo = data.payload.globalRoundInfo;
+            playerMatchInfo = data.payload.playerMatchInfo;
+            playerRoundInfo = data.payload.playerRoundInfo;
+            updateAllInfo();
+            break;
+
     }
+}
+
+function updateAllInfo() {
+    updateGlobalMatchInfo();
+    updateGlobalRoundInfo();
+    updatePlayerMatchInfo();
+    updatePlayerRoundInfo();
 }
 
 function updateGlobalMatchInfo() {
@@ -128,18 +147,21 @@ function updateGlobalMatchInfo() {
 
 function updateGlobalRoundInfo() {
     let activePlayer = document.getElementById("activePlayer");
-    if (globalMatchInfo.activePlayer === "ALL") {
+    if (globalRoundInfo.activePlayer === "ALL") {
         activePlayer.innerText = "All players active";
-    } else if (globalMatchInfo.activePlayer === peer.id) {
-        activePlayer.innerText = "You are the active player: " + peer.id;
+    } else if (globalRoundInfo.activePlayer === playerMatchInfo.peerId) {
+        activePlayer.innerText = "You are the active player: " + playerMatchInfo.peerId;
     } else {
-        activePlayer.innerText = "Waiting for active player: " + peer.id;
+        activePlayer.innerText = "Waiting for active player: " + playerMatchInfo.peerId;
     }
 }
 
 function updatePlayerMatchInfo() {
     let wins = document.getElementById("wins");
-    wins = playerMatchInfo.wins;
+    wins.innerText = playerMatchInfo.wins;
+
+    let peerIdFromHost = document.getElementById("peerIdFromHost");
+    peerIdFromHost.innerText = playerMatchInfo.peerId
 }
 
 function updatePlayerRoundInfo() {

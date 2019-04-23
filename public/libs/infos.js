@@ -19,6 +19,7 @@ function PlayerMatchInfo() {
         totalRedCards: 3,
         totalBlackCards: 1,
         wins: 0,
+        peerId: 'not-set',
     }
 }
 
@@ -27,6 +28,7 @@ function PlayerRoundInfo() {
         handRedCards: 3,
         handBlackCards: 1,
         stack: [],
+        peerId: 'not-set',
     }
 }
 

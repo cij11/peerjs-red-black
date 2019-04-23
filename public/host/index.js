@@ -70,10 +70,11 @@ function initialize() {
 
         if (gameHost.playerPeers.length === requiredNumPlayers) {
             gameHost.startGame();
-            gameHost.setActivePlayer(gameHost.getRandomPlayer());
+//          gameHost.setActivePlayer(gameHost.getRandomPlayer());
 
-            setTimeout(() => sendToAllPlayers({action: CONSTANTS.SET_GLOBAL_MATCH_INFO, payload: gameHost.globalMatchInfo}), 500);
-            setTimeout(() => sendToAllPlayers({action: CONSTANTS.SET_GLOBAL_ROUND_INFO, payload: gameHost.globalRoundInfo}), 1000);
+            setTimeout(() => sendStateToPlayers(), 500);
+            // setTimeout(() => sendToAllPlayers({action: CONSTANTS.SET_GLOBAL_MATCH_INFO, payload: gameHost.globalMatchInfo}), 500);
+            // setTimeout(() => sendToAllPlayers({action: CONSTANTS.SET_GLOBAL_ROUND_INFO, payload: gameHost.globalRoundInfo}), 1000);
 
         }
     });
@@ -95,48 +96,24 @@ function initialize() {
     });
 };
 
-function recieveInputFromPlayer(data) {
-    const action = data.action;
- 
-    console.log("Input from: " + this.peer); // this is the DataConnection 'conn', when recieveInputFromPlayer is passed as a callback function, so we have the peer property.
-
-    // Give input to gameHost
-    gameHost.recieveInputFromPlayer(this.peer, data);
-
-    // Perform logic
-
-    // Give output to some/all of players.
-    let outputs = gameHost.getOutputs();
-    sendOutputs(outputs);
-
-
-    if (gameHost.checkPlayerIsActive(this.peer)) {
-        console.log("Ping recieved from active player: " + this.peer);
-    } else {
-        console.log("Ping recieved from inactive player: " + this.peer);
-    }
-
-    console.log(data, "DATA");
-
-    // switch(action) {
-    //     case 'PLAY_CARD':
-    //     if () {
-
-    //     } else if () {
-
-    //     } else {
-
-    //     }
-    // }
+function sendStateToPlayers() {
+    connections.forEach(
+        element => {
+            let peerId = element.peer;
+            let payload = gameHost.getPayloadForPeer(peerId);
+            let data = {
+                action: CONSTANTS.SET_ALL_INFO,
+                payload: payload
+            }
+            element.send(data)
+        }
+    );
 }
 
-function sendOutputs(outputs) {
-    outputs.forEach(
-        output => {
-            let outputConn = connections.filter(element => element.peer === output.peer)[0];
-            outputConn.send(output.data)
-        } 
-    );
+function recieveInputFromPlayer(data) {
+    console.log("Input from: " + this.peer); // this is the DataConnection 'conn', when recieveInputFromPlayer is passed as a callback function, so we have the peer property.
+    console.log(data, "DATA");
+
 }
 
 function sendToAllPlayers(data) {

@@ -24,14 +24,27 @@ class GameHost {
 
     buildDefaultPlayerMatchInfos() {
         this.playerPeers.forEach(player => {
-            this.playerMatchInfos.set(player, Infos.PlayerMatchInfo());
+            let playerMatchInfo = Infos.PlayerMatchInfo();
+            playerMatchInfo.peerId = player;
+            this.playerMatchInfos.set(player, playerMatchInfo);
         });
     }
 
     buildDefaultPlayerRoundInfos() {
         this.playerPeers.forEach(player => {
-            this.playerRoundInfos.set(player, Infos.PlayerRoundInfo());
+            let playerRoundInfo = Infos.PlayerRoundInfo()
+            playerRoundInfo.peerId = player;
+            this.playerRoundInfos.set(player, playerRoundInfo);
         });
+    }
+
+    getPayloadForPeer(peerId) {
+        return {
+            globalMatchInfo: this.globalMatchInfo,
+            globalRoundInfo: this.globalRoundInfo,
+            playerMatchInfo: this.playerMatchInfos.get(peerId),
+            playerRoundInfo: this.playerRoundInfos.get(peerId)
+        }
     }
 
     startGame() {
@@ -67,23 +80,6 @@ class GameHost {
             throw("Peer not in playerGameInfo");
         }
         
-    }
-
-    recieveInputFromPlayer(peer, data) {
-        this.output = [];
-
-        const isActivePlayer = this.checkPlayerIsActive(peer);
-    
-        this.output.push(
-            {
-                peer: peer,
-                data: {isActivePlayer: isActivePlayer}
-            }
-        )
-    }
-
-    getOutputs() {
-        return this.output;
     }
 }
 
