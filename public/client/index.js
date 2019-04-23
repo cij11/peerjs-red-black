@@ -30,6 +30,8 @@ submitHostId.onclick = () => {
     join();
 }
 
+
+
 function initialize() {
     // Create own peer object with connection to shared PeerJS server
     peer = new Peer('', {
@@ -100,6 +102,25 @@ function join() {
     conn.on('close', function () {
         console.log("Connection closed");
     });
+
+
+    let playRedButton = document.getElementById("playRedCard");
+    playRedButton.onclick = () => {
+        conn.send(
+            {
+                action: CONSTANTS.PLAY_RED_CARD
+            }
+        )
+    }
+
+    let playBlackButton = document.getElementById("playBlackCard");
+    playBlackButton.onclick = () => {
+        conn.send(
+            {
+                action: CONSTANTS.PLAY_BLACK_CARD
+            }
+        )
+    }
 };
 
 function recieveData(data) {
@@ -170,4 +191,23 @@ function updatePlayerRoundInfo() {
 
     let handBlackCards = document.getElementById("handBlackCards");
     handBlackCards.innerText = playerRoundInfo.handBlackCards;
+
+    drawStack();
 }
+
+function drawStack() {
+    let stackList = document.getElementById("stackList");
+
+    while (stackList.firstChild) {
+        stackList.removeChild(stackList.firstChild);
+    }
+
+    playerRoundInfo.stack.forEach(
+        card => {
+            let cardItem = document.createElement('li');
+            cardItem.appendChild(document.createTextNode(card));
+            stackList.appendChild(cardItem);
+        }
+    )
+}
+

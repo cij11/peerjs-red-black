@@ -62,29 +62,31 @@ class GameHost {
             let playRed = data.action === CONSTANTS.PLAY_RED_CARD;
             let playBlack = data.action === CONSTANTS.PLAY_BLACK_CARD;
 
-            if (playRed && !checkRedValid(peerId)) {
+            if (playRed && !this.checkTotalRedValid(peerId)) {
                 return false;
             }
 
-            if (playBlack && !checkBlackValid(peerId)) {
+            if (playBlack && !this.checkTotalBlackValid(peerId)) {
                 return false;
             }
 
-            if (playRed) playFirstRed(peerId);
-            if (playBlack) playFirstBlack(peerId);
+            if (playRed) this.playFirstRed(peerId);
+            if (playBlack) this.playFirstBlack(peerId);
 
-            if(playRed || playBlack) true;
+            if(playRed || playBlack) return true;
         }
 
         return false;
     }
 
-    checkRedValid(peerId) {
-        return this.playerRoundInfos.get(peerId).handRedCards > 0;
+    checkTotalRedValid(peerId) {
+        const playerMatchInfo = this.playerMatchInfos.get(peerId);
+        return playerMatchInfo.totalRedCards > 0;
     }
 
-    checkBlackValid(peerId) {
-        return this.playerRoundInfos.get(peerId).handBlackCards > 0;
+    checkTotalBlackValid(peerId) {
+        const playerMatchInfo = this.playerMatchInfos.get(peerId);
+        return playerMatchInfo.totalBlackCards > 0;
     }
 
     playFirstRed(peerId) {

@@ -58,24 +58,26 @@ function initialize() {
     peer.on('connection', function (c) {
         conn = c;
         console.log("Connected to: " + conn.peer);
+        
+        if (gameHost.playerPeers.length < requiredNumPlayers) {
+            conn.on('data', recieveInputFromPlayer);
+
+            connections.push(conn);
+            let connectedClientCount = document.getElementById("connectedClientCount");
+            connectedClientCount.innerText = connections.length;
     
-        conn.on('data', recieveInputFromPlayer);
-
-        connections.push(conn);
-        let connectedClientCount = document.getElementById("connectedClientCount");
-        connectedClientCount.innerText = connections.length;
-
-        gameHost.addPlayer(conn.peer);
-        gameHost.logPlayers();
-
-        if (gameHost.playerPeers.length === requiredNumPlayers) {
-            gameHost.startGame();
-//          gameHost.setActivePlayer(gameHost.getRandomPlayer());
-
-            setTimeout(() => sendStateToPlayers(), 500);
-            // setTimeout(() => sendToAllPlayers({action: CONSTANTS.SET_GLOBAL_MATCH_INFO, payload: gameHost.globalMatchInfo}), 500);
-            // setTimeout(() => sendToAllPlayers({action: CONSTANTS.SET_GLOBAL_ROUND_INFO, payload: gameHost.globalRoundInfo}), 1000);
-
+            gameHost.addPlayer(conn.peer);
+            gameHost.logPlayers();
+    
+            if (gameHost.playerPeers.length === requiredNumPlayers) {
+                gameHost.startGame();
+    //          gameHost.setActivePlayer(gameHost.getRandomPlayer());
+    
+                setTimeout(() => sendStateToPlayers(), 500);
+                // setTimeout(() => sendToAllPlayers({action: CONSTANTS.SET_GLOBAL_MATCH_INFO, payload: gameHost.globalMatchInfo}), 500);
+                // setTimeout(() => sendToAllPlayers({action: CONSTANTS.SET_GLOBAL_ROUND_INFO, payload: gameHost.globalRoundInfo}), 1000);
+    
+            }
         }
     });
     peer.on('disconnected', function () {
