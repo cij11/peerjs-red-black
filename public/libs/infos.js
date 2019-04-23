@@ -10,6 +10,9 @@ function GlobalRoundInfo() {
     return {
         roundState: CONSTANTS.ROUND_STATE_INITIAL_PLACEMENT,
         activePlayer: CONSTANTS.ALL_ACTIVE,
+        hasPlayedFirstCard: [],
+        skipped: [],
+        stackSizeByPlayer: {}
     }
 
 }

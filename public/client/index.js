@@ -124,6 +124,8 @@ function join() {
 };
 
 function recieveData(data) {
+    console.log("Received data from host:")
+    console.log(data);
     switch(data.action) {
         case CONSTANTS.SET_GLOBAL_MATCH_INFO:
             globalMatchInfo = data.payload;
@@ -173,7 +175,7 @@ function updateGlobalRoundInfo() {
     } else if (globalRoundInfo.activePlayer === playerMatchInfo.peerId) {
         activePlayer.innerText = "You are the active player: " + playerMatchInfo.peerId;
     } else {
-        activePlayer.innerText = "Waiting for active player: " + playerMatchInfo.peerId;
+        activePlayer.innerText = "Waiting for active player: " + globalMatchInfo.activePlayer;
     }
 }
 

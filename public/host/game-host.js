@@ -56,6 +56,13 @@ class GameHost {
         this.buildDefaultPlayerRoundInfos();
     }
 
+    startPlacing() {
+        console.log("All players placed first card. Starting placing");
+
+        this.globalRoundInfo.activePlayer = this.getRandomPlayer();
+        this.globalRoundInfo.roundState = CONSTANTS.ROUND_STATE_PLACING;
+    }
+
     // Return false if invalid move
     processMove(peerId, data) {
         if(this.globalRoundInfo.roundState === CONSTANTS.ROUND_STATE_INITIAL_PLACEMENT) {
@@ -70,10 +77,19 @@ class GameHost {
                 return false;
             }
 
+            if (!(playRed || playBlack)) return false;
+
             if (playRed) this.playFirstRed(peerId);
             if (playBlack) this.playFirstBlack(peerId);
 
-            if(playRed || playBlack) return true;
+            if(!this.globalRoundInfo.hasPlayedFirstCard.includes(peerId)) {
+                this.globalRoundInfo.hasPlayedFirstCard.push(peerId);
+                if (this.globalRoundInfo.hasPlayedFirstCard.length === CONSTANTS.REQUIRED_PLAYERS) {
+                    this.startPlacing();
+                }
+            }
+
+            return true;
         }
 
         return false;

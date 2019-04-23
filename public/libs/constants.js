@@ -19,6 +19,8 @@ const CONSTANTS = {
     PLAY_RED_CARD: "PLAY_RED_CARD",
     CHALLENGE: "CHALLENGE",
     PASS: "PASS",
+
+    REQUIRED_PLAYERS: 2
 }
 
 module.exports = CONSTANTS;
