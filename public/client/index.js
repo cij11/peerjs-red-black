@@ -172,11 +172,14 @@ function updateGlobalRoundInfo() {
     let activePlayer = document.getElementById("activePlayer");
     if (globalRoundInfo.activePlayer === CONSTANTS.ALL_ACTIVE) {
         activePlayer.innerText = "All players active";
-    } else if (globalRoundInfo.activePlayer === playerMatchInfo.peerId) {
-        activePlayer.innerText = "You are the active player: " + playerMatchInfo.peerId;
+    } else if (globalRoundInfo.activePlayer === playerRoundInfo.peerId) {
+        activePlayer.innerText = "You are the active player: " + playerRoundInfo.peerId;
     } else {
-        activePlayer.innerText = "Waiting for active player: " + globalMatchInfo.activePlayer;
+        activePlayer.innerText = "Waiting for active player: " + globalRoundInfo.activePlayer;
     }
+
+    let roundState = document.getElementById("roundState");
+    roundState.innerText = globalRoundInfo.roundState
 }
 
 function updatePlayerMatchInfo() {
