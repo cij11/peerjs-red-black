@@ -114,6 +114,18 @@ function recieveInputFromPlayer(data) {
     console.log("Input from: " + this.peer); // this is the DataConnection 'conn', when recieveInputFromPlayer is passed as a callback function, so we have the peer property.
     console.log(data, "DATA");
 
+    if (gameHost.globalMatchInfo.matchState === CONSTANTS.MATCH_STATE_ALL_CONNECTED){
+        // Check player is valid to move.
+        if(gameHost.checkPlayerIsActive(this.peer)) {
+
+            let isValidMove = gameHost.processMove(this.peer, data);
+
+            if (isValidMove) {
+                // Broadcast new state.
+                sendStateToPlayers();
+            }
+        }
+    }
 }
 
 function sendToAllPlayers(data) {

@@ -56,6 +56,57 @@ class GameHost {
         this.buildDefaultPlayerRoundInfos();
     }
 
+    // Return false if invalid move
+    processMove(peerId, data) {
+        if(this.globalRoundInfo.roundState === CONSTANTS.ROUND_STATE_INITIAL_PLACEMENT) {
+            let playRed = data.action === CONSTANTS.PLAY_RED_CARD;
+            let playBlack = data.action === CONSTANTS.PLAY_BLACK_CARD;
+
+            if (playRed && !checkRedValid(peerId)) {
+                return false;
+            }
+
+            if (playBlack && !checkBlackValid(peerId)) {
+                return false;
+            }
+
+            if (playRed) playFirstRed(peerId);
+            if (playBlack) playFirstBlack(peerId);
+
+            if(playRed || playBlack) true;
+        }
+
+        return false;
+    }
+
+    checkRedValid(peerId) {
+        return this.playerRoundInfos.get(peerId).handRedCards > 0;
+    }
+
+    checkBlackValid(peerId) {
+        return this.playerRoundInfos.get(peerId).handBlackCards > 0;
+    }
+
+    playFirstRed(peerId) {
+        const playerRoundInfo = this.playerRoundInfos.get(peerId);
+        const playerMatchInfo = this.playerMatchInfos.get(peerId);
+
+        playerRoundInfo.stack = [];
+        playerRoundInfo.stack.push('red');
+        playerRoundInfo.handRedCards = playerMatchInfo.totalRedCards - 1;
+        playerRoundInfo.handBlackCards = playerMatchInfo.totalBlackCards;
+    }
+
+    playFirstBlack(peerId) {
+        const playerRoundInfo = this.playerRoundInfos.get(peerId);
+        const playerMatchInfo = this.playerMatchInfos.get(peerId);
+
+        playerRoundInfo.stack = [];
+        playerRoundInfo.stack.push('black');
+        playerRoundInfo.handBlackCards = 0;
+        playerRoundInfo.handRedCards = playerMatchInfo.totalRedCards;
+    }
+
     setActivePlayer(activePlayerPeer) {
         this.globalRoundInfo.activePlayer = activePlayerPeer;
     }
