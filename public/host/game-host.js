@@ -116,6 +116,8 @@ class GameHost {
             let playBlack = data.action === CONSTANTS.PLAY_BLACK_CARD;
             let playChallenge = data.action === CONSTANTS.CHALLENGE;
 
+            if (!(playRed || playBlack || playChallenge)) return false;
+
             if (playRed && !this.checkHandRedValid(peerId)) {
                 return false;
             }
@@ -144,6 +146,9 @@ class GameHost {
             let playChallenge = data.action === CONSTANTS.CHALLENGE;
             let pass = data.action === CONSTANTS.PASS;
 
+            // Only challenge and pass are valid during challenge phase.
+            if (!(playChallenge || pass)) return false;
+
             if (playChallenge && !this.checkChallengeValid(data.payload.challengeBid)) {
                 return false;
             }
@@ -167,6 +172,21 @@ class GameHost {
                 this.advanceActivePlayer();
                 return true;
             }
+        }
+
+
+        if(this.globalRoundInfo.roundState == CONSTANTS.ROUND_STATE_REVEALING) {
+            let playReveal = data.action === CONSTANTS.REVEAL;
+
+            // Only revealing is valid during reveal phase.
+            if(!playReveal) return false;
+
+            if(playReveal && !this.checkRevealValid(peerId, data.payload.revealPlayer)) {
+                return false;
+            }
+
+            this.playReveal(peerId, data.payload.revealPlayer);
+            return true;
         }
 
         return false;
@@ -194,6 +214,22 @@ class GameHost {
 
     checkChallengeValid(challengeBid) {
         return challengeBid > this.globalRoundInfo.currentChallengeBid && challengeBid <= this.totalPlayedCards();
+    }
+
+    checkRevealValid(peerId, playerToReveal) {
+        // If the player has cards in their stack, these must be revealed first
+        if (this.globalRoundInfo.stackSizeByPlayer[peerId] > 0) {
+            if (peerId !== playerToReveal) {
+                return false;
+            }
+        }
+
+        // The stack to be revealed must contain cards
+        if (this.globalRoundInfo.stackSizeByPlayer[playerToReveal] === 0) {
+            return false;
+        }
+
+        return true;
     }
 
     totalPlayedCards() {
@@ -245,6 +281,77 @@ class GameHost {
     playChallenge(challengeBid) {
         this.globalRoundInfo.currentChallengeBid = challengeBid;
     }
+
+    playReveal(peerId, playerToReveal) {
+        let revealedCard = this.playerRoundInfos.get(playerToReveal).stack.pop();
+
+        if (revealedCard === 'black') {
+            this.losePlayer(peerId);
+            this.newRound();
+        }
+
+        if (revealedCard === 'red') {
+            this.globalRoundInfo.successfulReveals = this.globalRoundInfo.successfulReveals + 1;
+
+            // Use == because we want to coerse an equality between an int and a string
+            if (this.globalRoundInfo.successfulReveals == this.globalRoundInfo.currentChallengeBid) {
+                this.winPlayer(peerId);
+                this.newRound();
+            }
+        }
+    }
+
+    losePlayer(peerId) {
+        let playerMatchInfo = this.playerMatchInfos.get(peerId);
+        let playerRoundInfo = this.playerRoundInfos.get(peerId);
+
+        let discard = Math.random();
+
+        if (discard < 0.25) {
+            if (playerMatchInfo.totalBlackCards > 0) {
+                playerMatchInfo.totalBlackCards = 0;
+            } else {
+                playerMatchInfo.totalRedCards -= 1;
+            }
+        } else {
+            if (playerMatchInfo.totalRedCards > 0) {
+                playerMatchInfo.totalRedCards -= 1;
+            } else {
+                playerMatchInfo.totalBlackCards = 0;
+            }
+        }
+
+        // Eliminate player if out of cards
+        if (playerMatchInfo.totalBlackCards + playerMatchInfo.totalRedCards === 0) {
+            for( var i = 0; i < this.playerPeers.length; i++){ 
+                if ( this.playerPeers[i] === peerId) {
+                    this.playerPeers.splice(i, 1); 
+                }
+             }
+        }
+    }
+
+    winPlayer(peerId) {
+        this.playerMatchInfos.get(peerId).wins += 1;
+    }
+
+    newRound() {
+        this.globalRoundInfo = Infos.GlobalRoundInfo();
+
+        this.playerRoundInfos = new Map();
+
+        this.playerPeers.forEach(
+            peerId => {
+                let playerRoundInfo = Infos.PlayerRoundInfo();
+                playerRoundInfo.peerId = peerId;
+                playerRoundInfo.handRedCards = this.playerMatchInfos.get(peerId).totalRedCards;
+                playerRoundInfo.handBlackCards = this.playerMatchInfos.get(peerId).totalBlackCards;
+
+                this.playerRoundInfos.set(peerId, playerRoundInfo);
+            }
+        )
+    }
+
 
     setActivePlayer(activePlayerPeer) {
         this.globalRoundInfo.activePlayer = activePlayerPeer;

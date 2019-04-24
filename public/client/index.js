@@ -206,6 +206,9 @@ function updateGlobalRoundInfo() {
     let currentChallengeBid = document.getElementById("currentChallengeBid");
     currentChallengeBid.innerText = globalRoundInfo.currentChallengeBid;
 
+    let successfulReveals = document.getElementById("successfulReveals");
+    successfulReveals.innerText = globalRoundInfo.successfulReveals;
+
     drawOtherPlayersCards();
 }
 
@@ -255,6 +258,23 @@ function drawOtherPlayersCards() {
         let text = "Player: " + key + " card count: " + globalRoundInfo.stackSizeByPlayer[key];
         otherPlayerCardsItem.appendChild(document.createTextNode(text));
         otherPlayersCards.appendChild(otherPlayerCardsItem);
+
+        let revealCardButtonItem = document.createElement('BUTTON');
+        let buttonTextNode = document.createTextNode("Reveal Card from player: " + key);
+        revealCardButtonItem.appendChild(buttonTextNode);
+
+        revealCardButtonItem.onclick = () => {
+            conn.send(
+                {
+                    action: CONSTANTS.REVEAL,
+                    payload: {
+                        revealPlayer: key
+                    }
+                }
+            );
+        }
+
+        otherPlayerCardsItem.appendChild(revealCardButtonItem);
       })
 }
 

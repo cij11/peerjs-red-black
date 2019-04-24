@@ -13,7 +13,8 @@ function GlobalRoundInfo() {
         hasPlayedFirstCard: [],
         skipped: [],
         stackSizeByPlayer: {},
-        currentChallengeBid: 0
+        currentChallengeBid: 0,
+        successfulReveals: 0
     }
 
 }
