@@ -5,7 +5,6 @@ const CONSTANTS = require("../libs/constants.js");
 console.log("Host source hit");
 let gameHost = new GameHost();
 gameHost.logPlayers();
-let requiredNumPlayers = 2;
 
 initialize();
 
@@ -69,7 +68,7 @@ function initialize() {
             gameHost.addPlayer(conn.peer);
             gameHost.logPlayers();
     
-            if (gameHost.playerPeers.length === requiredNumPlayers) {
+            if (gameHost.playerPeers.length === CONSTANTS.REQUIRED_PLAYERS) {
                 gameHost.startGame();
     //          gameHost.setActivePlayer(gameHost.getRandomPlayer());
     
