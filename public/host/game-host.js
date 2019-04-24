@@ -110,9 +110,11 @@ class GameHost {
             return false;
         }
 
+        // Placing cards
         if(this.globalRoundInfo.roundState === CONSTANTS.ROUND_STATE_PLACING) {
             let playRed = data.action === CONSTANTS.PLAY_RED_CARD;
             let playBlack = data.action === CONSTANTS.PLAY_BLACK_CARD;
+            let playChallenge = data.action === CONSTANTS.CHALLENGE;
 
             if (playRed && !this.checkHandRedValid(peerId)) {
                 return false;
@@ -122,11 +124,49 @@ class GameHost {
                 return false;
             }
 
+            if (playChallenge && !this.checkChallengeValid(data.payload.challengeBid)) {
+                return false;
+            }
+
             if (playRed) this.playRed(peerId);
             if (playBlack) this.playBlack(peerId);
 
+            if(playChallenge) {
+                this.playChallenge(data.payload.challengeBid);
+                this.globalRoundInfo.roundState = CONSTANTS.ROUND_STATE_CHALLENGING;
+            }
+
             this.advanceActivePlayer();
             return true;
+        }
+
+        if(this.globalRoundInfo.roundState == CONSTANTS.ROUND_STATE_CHALLENGING) {
+            let playChallenge = data.action === CONSTANTS.CHALLENGE;
+            let pass = data.action === CONSTANTS.PASS;
+
+            if (playChallenge && !this.checkChallengeValid(data.payload.challengeBid)) {
+                return false;
+            }
+
+            if(playChallenge) {
+                this.playChallenge(data.payload.challengeBid);
+                this.advanceActivePlayer();
+                return true;
+            }
+
+            if(pass) {
+                this.globalRoundInfo.skipped.push(peerId);
+
+                this.advanceActivePlayer();
+
+                // If all but one have skipped
+                if (this.globalRoundInfo.skipped.length === this.playerPeers.length -1) {
+                    this.globalRoundInfo.activePlayer = this.getUnskippedPlayer();
+                    this.globalRoundInfo.roundState = CONSTANTS.ROUND_STATE_REVEALING;
+                }
+
+                return true;
+            }
         }
 
         return false;
@@ -150,6 +190,22 @@ class GameHost {
     checkHandBlackValid(peerId) {
         const playerRoundInfo = this.playerRoundInfos.get(peerId);
         return playerRoundInfo.handBlackCards > 0;
+    }
+
+    checkChallengeValid(challengeBid) {
+        return challengeBid > this.globalRoundInfo.currentChallengeBid && challengeBid <= this.totalPlayedCards();
+    }
+
+    totalPlayedCards() {
+        let playedCardCount = 0;
+
+        Object.keys(this.globalRoundInfo.stackSizeByPlayer).forEach(
+            key => {
+                playedCardCount += this.globalRoundInfo.stackSizeByPlayer[key];
+            }
+        )
+
+        return playedCardCount;
     }
 
     playFirstRed(peerId) {
@@ -186,6 +242,10 @@ class GameHost {
         playerRoundInfo.handBlackCards = playerRoundInfo.handBlackCards - 1;
     }
 
+    playChallenge(challengeBid) {
+        this.globalRoundInfo.currentChallengeBid = challengeBid;
+    }
+
     setActivePlayer(activePlayerPeer) {
         this.globalRoundInfo.activePlayer = activePlayerPeer;
     }
@@ -200,6 +260,10 @@ class GameHost {
         if (activeIndex === this.playerPeers.length) activeIndex = 0;
 
         this.globalRoundInfo.activePlayer = this.playerPeers[activeIndex];
+
+        if(this.globalRoundInfo.skipped.includes(this.globalRoundInfo.activePlayer)) {
+            this.advanceActivePlayer();
+        }
     }
 
     checkPlayerIsActive(playerPeer) {
@@ -209,6 +273,17 @@ class GameHost {
     getRandomPlayer() {
         const index = Math.floor(Math.random(0, this.playerPeers.length));
         return this.playerPeers[index];
+    }
+
+    getUnskippedPlayer() {
+        this.playerPeers.forEach(
+            playerPeer => {
+                if(!this.globalRoundInfo.skipped.includes(playerPeer)){
+                    return playerPeer;
+                }
+            }
+        )
+        throw("No unskipped players to return");
     }
 
 }

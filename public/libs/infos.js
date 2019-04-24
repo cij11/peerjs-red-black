@@ -12,7 +12,8 @@ function GlobalRoundInfo() {
         activePlayer: CONSTANTS.ALL_ACTIVE,
         hasPlayedFirstCard: [],
         skipped: [],
-        stackSizeByPlayer: {}
+        stackSizeByPlayer: {},
+        currentChallengeBid: 0
     }
 
 }

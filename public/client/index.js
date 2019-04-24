@@ -121,6 +121,19 @@ function join() {
             }
         )
     }
+
+    let challengeAmountInput = document.getElementById("challengeAmount");
+    let makeChallengeButton = document.getElementById("makeChallenge");
+    makeChallengeButton.onclick = () => {
+        conn.send(
+            {
+                action: CONSTANTS.CHALLENGE,
+                payload: {
+                    challengeBid: challengeAmountInput.value
+                }
+            }
+        )
+    }
 };
 
 function recieveData(data) {
@@ -180,6 +193,9 @@ function updateGlobalRoundInfo() {
 
     let roundState = document.getElementById("roundState");
     roundState.innerText = globalRoundInfo.roundState
+
+    let currentChallengeBid = document.getElementById("currentChallengeBid");
+    currentChallengeBid.innerText = globalRoundInfo.currentChallengeBid;
 
     drawOtherPlayersCards();
 }

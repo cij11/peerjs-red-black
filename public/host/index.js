@@ -58,7 +58,7 @@ function initialize() {
         conn = c;
         console.log("Connected to: " + conn.peer);
         
-        if (gameHost.playerPeers.length < requiredNumPlayers) {
+        if (gameHost.playerPeers.length < CONSTANTS.REQUIRED_PLAYERS) {
             conn.on('data', recieveInputFromPlayer);
 
             connections.push(conn);
