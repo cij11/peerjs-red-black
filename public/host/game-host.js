@@ -157,14 +157,14 @@ class GameHost {
             if(pass) {
                 this.globalRoundInfo.skipped.push(peerId);
 
-                this.advanceActivePlayer();
-
                 // If all but one have skipped
                 if (this.globalRoundInfo.skipped.length === this.playerPeers.length -1) {
                     this.globalRoundInfo.activePlayer = this.getUnskippedPlayer();
                     this.globalRoundInfo.roundState = CONSTANTS.ROUND_STATE_REVEALING;
+                    return true;
                 }
 
+                this.advanceActivePlayer();
                 return true;
             }
         }
@@ -276,14 +276,19 @@ class GameHost {
     }
 
     getUnskippedPlayer() {
+        let unskippedPlayer = null;
         this.playerPeers.forEach(
             playerPeer => {
                 if(!this.globalRoundInfo.skipped.includes(playerPeer)){
-                    return playerPeer;
+                    unskippedPlayer = playerPeer;
                 }
             }
         )
-        throw("No unskipped players to return");
+        if (unskippedPlayer === null) {
+            throw("No unskipped players to return");
+        }
+        
+        return unskippedPlayer;
     }
 
 }

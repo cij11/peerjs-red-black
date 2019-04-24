@@ -110,7 +110,7 @@ function join() {
             {
                 action: CONSTANTS.PLAY_RED_CARD
             }
-        )
+        );
     }
 
     let playBlackButton = document.getElementById("playBlackCard");
@@ -119,7 +119,7 @@ function join() {
             {
                 action: CONSTANTS.PLAY_BLACK_CARD
             }
-        )
+        );
     }
 
     let challengeAmountInput = document.getElementById("challengeAmount");
@@ -132,7 +132,16 @@ function join() {
                     challengeBid: challengeAmountInput.value
                 }
             }
-        )
+        );
+    }
+
+    let passButton = document.getElementById("pass");
+    passButton.onclick = () => {
+        conn.send(
+            {
+                action: CONSTANTS.PASS
+            }
+        );
     }
 };
 
