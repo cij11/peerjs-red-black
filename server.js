@@ -5,11 +5,13 @@ var peer = require('peer');
 
 var ExpressPeerServer = peer.ExpressPeerServer;
 
+var defaultPORT = 8050;
+
 // Set up server static hosting
 app.use(express.static('public'));
 
-var server = app.listen(process.env.PORT, function() {
-	console.log('Listening on '+process.env.PORT)
+var server = app.listen(process.env.PORT | defaultPORT, function() {
+	console.log('Listening on '+process.env.PORT | defaultPORT)
 })
 
 var options = {
