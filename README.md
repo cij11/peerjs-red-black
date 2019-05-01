@@ -18,6 +18,9 @@ Webpack will now watch for changes and rebuild when it detects a diff.
 
 `docker build -t chrisjolly25/red-black-node-web-app .`
 
+Push to dockerhub with
+`docker push chrisjolly25/red-black-node-web-app`
+
 ## Running Dockerised
 
 To run attached in docker, run 
@@ -29,4 +32,6 @@ To run attached in docker with this directory mounted as volume (so that changes
 Or, the above command is encoded in the docker-compose.yml, which can be invoked with
 
 `docker-compose up`
+
+
 

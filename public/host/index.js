@@ -6,6 +6,8 @@ console.log("Host source hit");
 let gameHost = new GameHost();
 gameHost.logPlayers();
 
+let requiredPlayers = 2;
+
 initialize();
 
 var lastPeerId = 0;
@@ -15,6 +17,14 @@ var connections = [];
 
 var pingClientsButton = document.getElementById("pingClients");
 pingClientsButton.onclick = () => pingClients();
+
+var numRequiredPlayersField = document.getElementById("numRequiredPlayers");
+
+var setRequiredPlayersButton = document.getElementById("setRequiredPlayers");
+setRequiredPlayersButton.onclick = () => {
+    let fieldValue = numRequiredPlayersField.value;
+    requiredPlayers = parseInt(fieldValue);
+};
 
 
 function pingClients() {
@@ -58,7 +68,7 @@ function initialize() {
         conn = c;
         console.log("Connected to: " + conn.peer);
         
-        if (gameHost.playerPeers.length < CONSTANTS.REQUIRED_PLAYERS) {
+        if (gameHost.playerPeers.length < requiredPlayers) {
             conn.on('data', recieveInputFromPlayer);
 
             connections.push(conn);
@@ -68,7 +78,7 @@ function initialize() {
             gameHost.addPlayer(conn.peer);
             gameHost.logPlayers();
     
-            if (gameHost.playerPeers.length === CONSTANTS.REQUIRED_PLAYERS) {
+            if (gameHost.playerPeers.length === requiredPlayers) {
                 gameHost.startGame();
     //          gameHost.setActivePlayer(gameHost.getRandomPlayer());
     
