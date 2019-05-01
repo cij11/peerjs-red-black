@@ -2,7 +2,7 @@ version: '2'
 
 services:
   app:
-    image: cij11/red-black-node-web-app
+    image: chrisjolly25/red-black-node-web-app
     volumes:
       - .:/usr/src/app
     ports:
